@@ -1,3 +1,4 @@
+
 {
   "name": "mappapi",
   "version": "1.0.0",
@@ -12,7 +13,8 @@
     "dev:start": "npm-run-all build start",
     "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start",
     "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "initdb": "ts-node tools/initdb"
   },
   "keywords": [],
   "author": "",
