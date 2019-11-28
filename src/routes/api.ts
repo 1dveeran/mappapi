@@ -18,7 +18,7 @@ export const register = (app: express.Application) => {
         // Check if username and password are set
 
         // Test
-        const { username, password } = req.body;
+        const {username, password} = req.body;
         if (!(username && password)) {
             res.status(400).send();
         }
@@ -37,12 +37,12 @@ export const register = (app: express.Application) => {
                     , color
                 FROM    guitars
                 WHERE   user_id = $[userId]
-                ORDER BY year, brand, model`, { userId });
+                ORDER BY year, brand, model`, {userId});
             return res.json(guitars);
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
-            res.json({ error: err.message || err });
+            res.json({error: err.message || err});
         }
     });
 
@@ -52,7 +52,7 @@ export const register = (app: express.Application) => {
             const total = await db.one(`
             SELECT  count(*) AS total
             FROM    guitars
-            WHERE   user_id = $[userId]`, { userId }, (data: { total: number }) => {
+            WHERE   user_id = $[userId]`, {userId}, (data: { total: number }) => {
                 return {
                     total: +data.total
                 };
@@ -61,7 +61,7 @@ export const register = (app: express.Application) => {
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
-            res.json({ error: err.message || err });
+            res.json({error: err.message || err});
         }
     });
 
@@ -78,12 +78,12 @@ export const register = (app: express.Application) => {
                 FROM    guitars
                 WHERE   user_id = $[userId]
                 AND   ( brand ILIKE $[search] OR model ILIKE $[search] )`,
-                { userId, search: `%${req.params.search}%` });
+                {userId, search: `%${req.params.search}%`});
             return res.json(guitars);
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
-            res.json({ error: err.message || err });
+            res.json({error: err.message || err});
         }
     });
 
@@ -94,12 +94,12 @@ export const register = (app: express.Application) => {
                 INSERT INTO guitars( user_id, brand, model, year, color )
                 VALUES( $[userId], $[brand], $[model], $[year], $[color] )
                 RETURNING id;`,
-                { userId, ...req.body });
-            return res.json({ id });
+                {userId, ...req.body});
+            return res.json({id});
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
-            res.json({ error: err.message || err });
+            res.json({error: err.message || err});
         }
     });
 
@@ -117,12 +117,12 @@ export const register = (app: express.Application) => {
                     AND user_id = $[userId]
                 RETURNING
                     id;`,
-                { userId, ...req.body });
-            return res.json({ id });
+                {userId, ...req.body});
+            return res.json({id});
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
-            res.json({ error: err.message || err });
+            res.json({error: err.message || err});
         }
     });
 

@@ -19,7 +19,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@okta/oidc-middleware": "^1.0.2",
     "@types/body-parser": "^1.17.1",
     "@types/cors": "^2.8.6",
     "@types/helmet": "0.0.45",
