@@ -16,6 +16,8 @@ export const register = (app: express.Application) => {
 
     app.post(`/api/login`, async (req: any, res) => {
         // Check if username and password are set
+
+        // Test
         const { username, password } = req.body;
         if (!(username && password)) {
             res.status(400).send();
