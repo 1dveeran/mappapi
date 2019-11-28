@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
 import path from "path";
-import * as sessionAuth from "./middleware/sessionAuth";
 import * as routes from "./routes";
 
 // initialize configuration
@@ -26,7 +25,7 @@ routes.register( app );
 // sessionAuth.register( app );
 
 // Configure routes
-routes.register( app );
+// routes.register( app );
 
 // define a route handler for the default home page
 // app.get( "/", ( req, res ) => {
