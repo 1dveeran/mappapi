@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS users
 (
-  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY
+  id INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   username character varying(100) NOT NULL,
   password character varying NOT NULL,
   salt character varying NOT NULL,
@@ -78,7 +78,8 @@ CREATE TABLE IF NOT EXISTS medical_info_checklist
   jaundice BOOLEAN NOT NULL DEFAULT FALSE,
   corticosteriod_treatment BOOLEAN NOT NULL DEFAULT FALSE,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now()
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  FOREIGN KEY (patients_id) REFERENCES patients (id) ON DELETE CASCADE
 );
 
 -- DROP TABLE medical_info;
@@ -95,7 +96,8 @@ CREATE TABLE IF NOT EXISTS medical_info
   is_smoking BOOLEAN NOT NULL DEFAULT FALSE,
   cigarette_count INTEGER DEFAULT 1,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now()
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  FOREIGN KEY (patients_id) REFERENCES patients (id) ON DELETE CASCADE
 );
 
 -- DROP TABLE medical_info;
@@ -114,7 +116,8 @@ CREATE TABLE IF NOT EXISTS medication
   is_allergic_ibuprofen BOOLEAN NOT NULL DEFAULT FALSE,
   any_other text,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now()
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  FOREIGN KEY (patients_id) REFERENCES patients (id) ON DELETE CASCADE
 );
 
 -- DROP TABLE dental_info;
@@ -127,5 +130,6 @@ CREATE TABLE IF NOT EXISTS dental_info
   chief_compliant text,
   past_dental_history text,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
-  updated_at timestamp with time zone NOT NULL DEFAULT now()
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  FOREIGN KEY (patients_id) REFERENCES patients (id) ON DELETE CASCADE
 );
