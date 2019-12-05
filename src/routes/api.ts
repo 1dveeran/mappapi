@@ -269,6 +269,45 @@ export const register = (app: express.Application) => {
         }
     });
 
+    app.get(`/api/get-patient`, async (req: any, res) => {
+        try {
+            const patientId = req.body.patient_id;
+            const result = await db.any(`
+                SELECT *
+                FROM patients
+                JOIN medical_info on patients.id = medical_info.patients_id
+                JOIN medical_info_checklist on patients.id = medical_info_checklist.patients_id
+                JOIN medication on patients.id = medication.patients_id
+                JOIN dental_info on patients.id = dental_info.patients_id
+                WHERE patients.id = $[patientId]
+                `, {patientId});
+            return res.json(result);
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
+    app.get(`/api/get-all-patients`, async (req: any, res) => {
+        try {
+            const result = await db.any(`
+                SELECT *
+                FROM patients
+                JOIN medical_info on patients.id = medical_info.patients_id
+                JOIN medical_info_checklist on patients.id = medical_info_checklist.patients_id
+                JOIN medication on patients.id = medication.patients_id
+                JOIN dental_info on patients.id = dental_info.patients_id
+                ORDER BY patients.id DESC
+                `);
+            return res.json(result);
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
     app.get(`/api/guitars/all`, async (req: any, res) => {
         try {
             const userId = req.userContext.userinfo.sub;
