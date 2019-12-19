@@ -271,7 +271,8 @@ export const register = (app: express.Application) => {
 
     app.get(`/api/get-patient`, async (req: any, res) => {
         try {
-            const patientId = req.body.patient_id;
+            // const patientId = req.body.patient_id;
+            const patientId = req.query.patient_id;
             const result = await db.any(`
                 SELECT *
                 FROM patients
@@ -281,7 +282,7 @@ export const register = (app: express.Application) => {
                 JOIN dental_info on patients.id = dental_info.patients_id
                 WHERE patients.id = $[patientId]
                 `, {patientId});
-            return res.json(result);
+            return res.json(result[0]);
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
