@@ -293,7 +293,7 @@ export const register = (app: express.Application) => {
     app.get(`/api/get-all-patients`, async (req: any, res) => {
         try {
             const result = await db.any(`
-                SELECT *
+                SELECT first_name, last_name
                 FROM patients
                 JOIN medical_info on patients.id = medical_info.patients_id
                 JOIN medical_info_checklist on patients.id = medical_info_checklist.patients_id
@@ -302,6 +302,505 @@ export const register = (app: express.Application) => {
                 ORDER BY patients.id DESC
                 `);
             return res.json(result);
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
+    app.post(`/api/update-patient`, async (req: any, res) => {
+        // tslint:disable-next-line: no-console
+        // console.log(req.body);
+        // console.log(req.body.patient_id);
+
+        try {
+            const patientId = req.body.patient_id;
+            // const patientId = req.query.patient_id;
+
+            if (!patientId) {
+                return res.status(400).send({message: "Patients Id is missing"});
+            }
+
+            if (!req.body.first_name || !req.body.last_name) {
+                return res.status(400).send({message: "Some values are missing"});
+            }
+
+            const query = await db.one(`
+                UPDATE patients
+                SET first_name = $[first_name],
+                last_name = $[last_name],
+                joining_date = $[joining_date],
+                current_address = $[current_address],
+                profession = $[profession],
+                telephone_no = $[telephone_no],
+                mobile_no = $[mobile_no],
+                sex = $[sex],
+                age = $[age],
+                marital_status = $[marital_status],
+                birth_date = $[birth_date]
+                WHERE patients.id = $[patientId];
+
+                UPDATE medical_info
+                SET is_nursing = $[is_nursing],
+                is_pregnant = $[is_pregnant],
+                pregnancy_due_date = $[pregnancy_due_date],
+                is_chewing = $[is_chewing],
+                is_smoking = $[is_smoking],
+                cigarette_count = $[cigarette_count]
+                WHERE patients_id = $[patientId];
+
+                UPDATE medical_info_checklist
+                SET aids =$[aids],
+                cancer =$[cancer],
+                liver_disease =$[liver_disease],
+                tb =$[tb],
+                asthma =$[asthma],
+                diabetes =$[diabetes],
+                kidney_disease =$[kidney_disease],
+                rheumatic_disease =$[rheumatic_disease],
+                arthritis =$[arthritis],
+                epilepsy =$[epilepsy],
+                psychiatric_treatment =$[psychiatric_treatment],
+                thyroid_problems =$[thyroid_problems],
+                blood_disease =$[blood_disease],
+                hepatitis =$[hepatitis],
+                radiation_treatment =$[radiation_treatment],
+                ulcer =$[ulcer],
+                bp =$[bp],
+                herpes =$[herpes],
+                respiratory_disease =$[respiratory_disease],
+                venereal_disease =$[venereal_disease],
+                heart_problems =$[heart_problems],
+                jaundice =$[jaundice],
+                corticosteriod_treatment =$[corticosteriod_treatment]
+                WHERE patients_id = $[patientId];
+
+                UPDATE medication
+                SET medicine_list =$[medicine_list],
+                is_allergic_penicillin =$[is_allergic_penicillin],
+                is_allergic_sulfa =$[is_allergic_sulfa],
+                is_allergic_aspirin =$[is_allergic_aspirin],
+                is_allergic_iodine =$[is_allergic_iodine],
+                is_allergic_localanaes =$[is_allergic_localanaes],
+                is_allergic_ibuprofen =$[is_allergic_ibuprofen],
+                any_other =$[any_other]
+                WHERE patients_id = $[patientId];
+
+                UPDATE dental_info
+                SET chief_compliant =$[chief_compliant],
+                past_dental_history =$[past_dental_history]
+                WHERE patients_id = $[patientId]
+                RETURNING patients_id;
+            `, {
+                patientId: req.body.patient_id,
+                first_name: req.body.first_name,
+                last_name: req.body.last_name,
+                joining_date: req.body.joining_date,
+                current_address: req.body.current_address,
+                profession: req.body.profession,
+                telephone_no: req.body.telephone_no,
+                mobile_no: req.body.mobile_no,
+                sex: req.body.sex,
+                age: req.body.age,
+                marital_status: req.body.marital_status,
+                birth_date: req.body.birth_date,
+                is_nursing: req.body.is_nursing,
+                is_pregnant: req.body.is_pregnant,
+                pregnancy_due_date: req.body.pregnancy_due_date,
+                is_chewing: req.body.is_chewing,
+                is_smoking: req.body.is_smoking,
+                cigarette_count: req.body.cigarette_count,
+                aids: req.body.aids,
+                cancer: req.body.cancer,
+                liver_disease: req.body.liver_disease,
+                tb: req.body.tb,
+                asthma: req.body.asthma,
+                diabetes: req.body.diabetes,
+                kidney_disease: req.body.kidney_disease,
+                rheumatic_disease: req.body.rheumatic_disease,
+                arthritis: req.body.arthritis,
+                epilepsy: req.body.epilepsy,
+                psychiatric_treatment: req.body.psychiatric_treatment,
+                thyroid_problems: req.body.thyroid_problems,
+                blood_disease: req.body.blood_disease,
+                hepatitis: req.body.hepatitis,
+                radiation_treatment: req.body.radiation_treatment,
+                ulcer: req.body.ulcer,
+                bp: req.body.bp,
+                herpes: req.body.herpes,
+                respiratory_disease: req.body.respiratory_disease,
+                venereal_disease: req.body.venereal_disease,
+                heart_problems: req.body.heart_problems,
+                jaundice: req.body.jaundice,
+                corticosteriod_treatment: req.body.corticosteriod_treatment,
+                medicine_list: req.body.medicine_list,
+                is_allergic_penicillin: req.body.is_allergic_penicillin,
+                is_allergic_sulfa: req.body.is_allergic_sulfa,
+                is_allergic_aspirin: req.body.is_allergic_aspirin,
+                is_allergic_iodine: req.body.is_allergic_iodine,
+                is_allergic_localanaes: req.body.is_allergic_localanaes,
+                is_allergic_ibuprofen: req.body.is_allergic_ibuprofen,
+                any_other: req.body.any_other,
+                chief_compliant: req.body.chief_compliant,
+                past_dental_history: req.body.past_dental_history
+            });
+            return res.json({query});
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
+    app.post(`/api/add-diagnosis`, async (req: any, res) => {
+        // tslint:disable-next-line: no-console
+        console.log(req.body);
+
+        try {
+            if (!req.body.patient_id) {
+                return res.status(400).send({message: "Some values are missing"});
+            }
+
+            const query = await db.one(`
+            INSERT INTO diagnosis_info
+                (
+                    patients_id,
+                    blood_pressure,
+                    pulse,
+                    breaths,
+                    blood_sugar,
+                    t_55, t_54, t_53, t_52, t_51, t_61, t_62, t_63, t_64, t_65, t_18, t_17, t_16, t_15, t_14, t_13, t_12, t_11, t_21, t_22, t_23, t_24, t_25, t_26, t_27, t_28, t_48, t_47, t_46, t_45, t_44, t_43, t_42, t_41, t_31, t_32, t_33, t_34, t_35, t_36, t_37, t_38, t_85, t_84, t_83, t_82, t_81, t_71, t_72, t_73, t_74, t_75,
+                    t_others,
+                    is_radiograph_iopa,
+                    is_radiograph_opg,
+                    is_radiograph_occlusal,
+                    is_radiograph_bitewing,
+                    radiograph_others,
+                    diagnosis,
+                    treatment_plan
+                )
+                VALUES(
+                    blood_pressure = $[blood_pressure ],
+                    pulse = $[pulse ],
+                    breaths = $[breaths ],
+                    blood_sugar = $[blood_sugar ],
+                    t_55 = $[t_55 ],
+                    t_54 = $[t_54 ],
+                    t_53 = $[t_53 ],
+                    t_52 = $[t_52 ],
+                    t_51 = $[t_51 ],
+                    t_61 = $[t_61 ],
+                    t_62 = $[t_62 ],
+                    t_63 = $[t_63 ],
+                    t_64 = $[t_64 ],
+                    t_65 = $[t_65 ],
+                    t_18 = $[t_18 ],
+                    t_17 = $[t_17 ],
+                    t_16 = $[t_16 ],
+                    t_15 = $[t_15 ],
+                    t_14 = $[t_14 ],
+                    t_13 = $[t_13 ],
+                    t_12 = $[t_12 ],
+                    t_11 = $[t_11 ],
+                    t_21 = $[t_21 ],
+                    t_22 = $[t_22 ],
+                    t_23 = $[t_23 ],
+                    t_24 = $[t_24 ],
+                    t_25 = $[t_25 ],
+                    t_26 = $[t_26 ],
+                    t_27 = $[t_27 ],
+                    t_28 = $[t_28 ],
+                    t_48 = $[t_48 ],
+                    t_47 = $[t_47 ],
+                    t_46 = $[t_46 ],
+                    t_45 = $[t_45 ],
+                    t_44 = $[t_44 ],
+                    t_43 = $[t_43 ],
+                    t_42 = $[t_42 ],
+                    t_41 = $[t_41 ],
+                    t_31 = $[t_31 ],
+                    t_32 = $[t_32 ],
+                    t_33 = $[t_33 ],
+                    t_34 = $[t_34 ],
+                    t_35 = $[t_35 ],
+                    t_36 = $[t_36 ],
+                    t_37 = $[t_37 ],
+                    t_38 = $[t_38 ],
+                    t_85 = $[t_85 ],
+                    t_84 = $[t_84 ],
+                    t_83 = $[t_83 ],
+                    t_82 = $[t_82 ],
+                    t_81 = $[t_81 ],
+                    t_71 = $[t_71 ],
+                    t_72 = $[t_72 ],
+                    t_73 = $[t_73 ],
+                    t_74 = $[t_74 ],
+                    t_75 = $[t_75 ],
+                    t_others = $[t_others ],
+                    is_radiograph_iopa = $[is_radiograph_iopa ],
+                    is_radiograph_opg = $[is_radiograph_opg ],
+                    is_radiograph_occlusal= $[is_radiograph_occlusal ],
+                    is_radiograph_bitewing= $[is_radiograph_bitewing ],
+                    radiograph_others = $[radiograph_others ],
+                    diagnosis = $[diagnosis ],
+                    treatment_plan= $[treatment_plan]
+                );
+            `, {
+                blood_pressure: req.body.blood_pressure,
+                pulse: req.body.pulse,
+                breaths: req.body.breaths,
+                blood_sugar: req.body.blood_sugar,
+                t_55: req.body.t_55,
+                t_54: req.body.t_54,
+                t_53: req.body.t_53,
+                t_52: req.body.t_52,
+                t_51: req.body.t_51,
+                t_61: req.body.t_61,
+                t_62: req.body.t_62,
+                t_63: req.body.t_63,
+                t_64: req.body.t_64,
+                t_65: req.body.t_65,
+                t_18: req.body.t_18,
+                t_17: req.body.t_17,
+                t_16: req.body.t_16,
+                t_15: req.body.t_15,
+                t_14: req.body.t_14,
+                t_13: req.body.t_13,
+                t_12: req.body.t_12,
+                t_11: req.body.t_11,
+                t_21: req.body.t_21,
+                t_22: req.body.t_22,
+                t_23: req.body.t_23,
+                t_24: req.body.t_24,
+                t_25: req.body.t_25,
+                t_26: req.body.t_26,
+                t_27: req.body.t_27,
+                t_28: req.body.t_28,
+                t_48: req.body.t_48,
+                t_47: req.body.t_47,
+                t_46: req.body.t_46,
+                t_45: req.body.t_45,
+                t_44: req.body.t_44,
+                t_43: req.body.t_43,
+                t_42: req.body.t_42,
+                t_41: req.body.t_41,
+                t_31: req.body.t_31,
+                t_32: req.body.t_32,
+                t_33: req.body.t_33,
+                t_34: req.body.t_34,
+                t_35: req.body.t_35,
+                t_36: req.body.t_36,
+                t_37: req.body.t_37,
+                t_38: req.body.t_38,
+                t_85: req.body.t_85,
+                t_84: req.body.t_84,
+                t_83: req.body.t_83,
+                t_82: req.body.t_82,
+                t_81: req.body.t_81,
+                t_71: req.body.t_71,
+                t_72: req.body.t_72,
+                t_73: req.body.t_73,
+                t_74: req.body.t_74,
+                t_75: req.body.t_75,
+                t_others: req.body.t_others,
+                is_radiograph_iopa: req.body.is_radiograph_iopa,
+                is_radiograph_opg: req.body.is_radiograph_opg,
+                is_radiograph_occlusal: req.body.is_radiograph_occlusal,
+                is_radiograph_bitewing: req.body.is_radiograph_bitewing,
+                radiograph_others: req.body.radiograph_others,
+                diagnosis: req.body.diagnosis,
+                treatment_plan: req.body.treatment_plan
+            });
+            return res.json({query});
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
+    app.get(`/api/get-diagnosis`, async (req: any, res) => {
+        try {
+            // const patientId = req.body.patient_id;
+            const patientId = req.query.patient_id;
+            const result = await db.any(`
+                SELECT *
+                FROM diagnosis_info
+                WHERE patients.id = $[patientId]
+                `, {patientId});
+            return res.json(result[0]);
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
+    app.get(`/api/get-all-diagnosis`, async (req: any, res) => {
+        try {
+            const result = await db.any(`
+                SELECT *
+                FROM diagnosis_info
+                ORDER BY diagnosis_info.id DESC
+                `);
+            return res.json(result);
+        } catch (err) {
+            // tslint:disable-next-line:no-console
+            console.error(err);
+            res.json({error: err.message || err});
+        }
+    });
+
+    app.post(`/api/update-diagnosis`, async (req: any, res) => {
+        // tslint:disable-next-line: no-console
+        // console.log(req.body);
+        // console.log(req.body.patient_id);
+
+        try {
+            const patientId = req.body.patient_id;
+            // const patientId = req.query.patient_id;
+
+            if (!patientId) {
+                return res.status(400).send({message: "Patients Id is missing"});
+            }
+
+            const query = await db.one(`
+                UPDATE diagnosis_info
+                SET blood_pressure = $[blood_pressure ],
+                pulse = $[pulse ],
+                breaths = $[breaths ],
+                blood_sugar = $[blood_sugar ],
+                t_55 = $[t_55 ],
+                t_54 = $[t_54 ],
+                t_53 = $[t_53 ],
+                t_52 = $[t_52 ],
+                t_51 = $[t_51 ],
+                t_61 = $[t_61 ],
+                t_62 = $[t_62 ],
+                t_63 = $[t_63 ],
+                t_64 = $[t_64 ],
+                t_65 = $[t_65 ],
+                t_18 = $[t_18 ],
+                t_17 = $[t_17 ],
+                t_16 = $[t_16 ],
+                t_15 = $[t_15 ],
+                t_14 = $[t_14 ],
+                t_13 = $[t_13 ],
+                t_12 = $[t_12 ],
+                t_11 = $[t_11 ],
+                t_21 = $[t_21 ],
+                t_22 = $[t_22 ],
+                t_23 = $[t_23 ],
+                t_24 = $[t_24 ],
+                t_25 = $[t_25 ],
+                t_26 = $[t_26 ],
+                t_27 = $[t_27 ],
+                t_28 = $[t_28 ],
+                t_48 = $[t_48 ],
+                t_47 = $[t_47 ],
+                t_46 = $[t_46 ],
+                t_45 = $[t_45 ],
+                t_44 = $[t_44 ],
+                t_43 = $[t_43 ],
+                t_42 = $[t_42 ],
+                t_41 = $[t_41 ],
+                t_31 = $[t_31 ],
+                t_32 = $[t_32 ],
+                t_33 = $[t_33 ],
+                t_34 = $[t_34 ],
+                t_35 = $[t_35 ],
+                t_36 = $[t_36 ],
+                t_37 = $[t_37 ],
+                t_38 = $[t_38 ],
+                t_85 = $[t_85 ],
+                t_84 = $[t_84 ],
+                t_83 = $[t_83 ],
+                t_82 = $[t_82 ],
+                t_81 = $[t_81 ],
+                t_71 = $[t_71 ],
+                t_72 = $[t_72 ],
+                t_73 = $[t_73 ],
+                t_74 = $[t_74 ],
+                t_75 = $[t_75 ],
+                t_others = $[t_others ],
+                is_radiograph_iopa = $[is_radiograph_iopa ],
+                is_radiograph_opg = $[is_radiograph_opg ],
+                is_radiograph_occlusal= $[is_radiograph_occlusal ],
+                is_radiograph_bitewing= $[is_radiograph_bitewing ],
+                radiograph_others = $[radiograph_others ],
+                diagnosis = $[diagnosis ],
+                treatment_plan= $[treatment_plan]
+                WHERE patients_id = $[patientId]
+                RETURNING patients_id;
+            `, {
+                patientId: req.body.patient_id,
+                blood_pressure: req.body.blood_pressure,
+                pulse: req.body.pulse,
+                breaths: req.body.breaths,
+                blood_sugar: req.body.blood_sugar,
+                t_55: req.body.t_55,
+                t_54: req.body.t_54,
+                t_53: req.body.t_53,
+                t_52: req.body.t_52,
+                t_51: req.body.t_51,
+                t_61: req.body.t_61,
+                t_62: req.body.t_62,
+                t_63: req.body.t_63,
+                t_64: req.body.t_64,
+                t_65: req.body.t_65,
+                t_18: req.body.t_18,
+                t_17: req.body.t_17,
+                t_16: req.body.t_16,
+                t_15: req.body.t_15,
+                t_14: req.body.t_14,
+                t_13: req.body.t_13,
+                t_12: req.body.t_12,
+                t_11: req.body.t_11,
+                t_21: req.body.t_21,
+                t_22: req.body.t_22,
+                t_23: req.body.t_23,
+                t_24: req.body.t_24,
+                t_25: req.body.t_25,
+                t_26: req.body.t_26,
+                t_27: req.body.t_27,
+                t_28: req.body.t_28,
+                t_48: req.body.t_48,
+                t_47: req.body.t_47,
+                t_46: req.body.t_46,
+                t_45: req.body.t_45,
+                t_44: req.body.t_44,
+                t_43: req.body.t_43,
+                t_42: req.body.t_42,
+                t_41: req.body.t_41,
+                t_31: req.body.t_31,
+                t_32: req.body.t_32,
+                t_33: req.body.t_33,
+                t_34: req.body.t_34,
+                t_35: req.body.t_35,
+                t_36: req.body.t_36,
+                t_37: req.body.t_37,
+                t_38: req.body.t_38,
+                t_85: req.body.t_85,
+                t_84: req.body.t_84,
+                t_83: req.body.t_83,
+                t_82: req.body.t_82,
+                t_81: req.body.t_81,
+                t_71: req.body.t_71,
+                t_72: req.body.t_72,
+                t_73: req.body.t_73,
+                t_74: req.body.t_74,
+                t_75: req.body.t_75,
+                t_others: req.body.t_others,
+                is_radiograph_iopa: req.body.is_radiograph_iopa,
+                is_radiograph_opg: req.body.is_radiograph_opg,
+                is_radiograph_occlusal: req.body.is_radiograph_occlusal,
+                is_radiograph_bitewing: req.body.is_radiograph_bitewing,
+                radiograph_others: req.body.radiograph_others,
+                diagnosis: req.body.diagnosis,
+                treatment_plan: req.body.treatment_plan
+            });
+            return res.json({query});
         } catch (err) {
             // tslint:disable-next-line:no-console
             console.error(err);
